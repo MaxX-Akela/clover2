@@ -25,13 +25,9 @@ target_include_directories(notification_outputs PUBLIC ${OpenCV_INCLUDE_DIRS})
 
 pluginlib_export_plugin_description_file(${PROJECT_NAME} plugins.xml)
 
-file(GLOB_RECURSE notification_core_sources
-  "src/controller.cpp"
-  "src/provider/*.cpp"
-)
-
 ament_auto_add_library(notification_core SHARED
-  ${notification_core_sources}
+  src/controller.cpp
+  DIRECTORY "src/provider"
 )
 target_link_libraries(notification_core notification_outputs)
 
