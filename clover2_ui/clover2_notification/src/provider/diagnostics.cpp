@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -19,6 +20,31 @@ bool matches_ignore_pattern(std::string_view pattern, std::string_view value) {
 
     pattern.remove_suffix(1);
     return value.starts_with(pattern);
+}
+
+std::optional<std::string> find_diagnostic_value(
+    const diagnostic_msgs::msg::DiagnosticStatus& status,
+    std::string_view key) {
+    for (const auto& value : status.values) {
+        if (value.key == key) {
+            return value.value;
+        }
+    }
+
+    return std::nullopt;
+}
+
+std::optional<double> parse_number(std::string_view value) {
+    try {
+        size_t parsed{};
+        const auto result = std::stod(std::string(value), &parsed);
+        if (parsed == value.size()) {
+            return result;
+        }
+    } catch (const std::exception&) {
+    }
+
+    return std::nullopt;
 }
 
 }  // namespace
@@ -88,6 +114,8 @@ void diagnostics::diagnostics_callback(const message_type& msg) {
 }
 
 void diagnostics::process_status(const status_type& status) {
+    process_system_status(status);
+
     if (is_ignored(status)) {
         return;
     }
@@ -105,6 +133,39 @@ void diagnostics::process_status(const status_type& status) {
 
     m_callback({static_cast<int>(status.level), "diagnostics", status.name,
                 status.message});
+}
+
+void diagnostics::process_system_status(const status_type& status) {
+    if (status.name.ends_with("CPU Information")) {
+        const auto cpu_load = find_diagnostic_value(status, "CPU Load Average");
+        if (cpu_load) {
+            m_callback({static_cast<int>(status.level), "system", "cpu",
+                        *cpu_load});
+        }
+        return;
+    }
+
+    if (!status.name.ends_with("Sensor Status")) {
+        return;
+    }
+
+    std::optional<std::pair<double, std::string>> maximum_temperature;
+    for (const auto& value : status.values) {
+        if (!std::string_view(value.key).ends_with(" Temperature")) {
+            continue;
+        }
+
+        const auto temperature = parse_number(value.value);
+        if (temperature && (!maximum_temperature ||
+                            *temperature > maximum_temperature->first)) {
+            maximum_temperature = std::make_pair(*temperature, value.value);
+        }
+    }
+
+    if (maximum_temperature) {
+        m_callback({static_cast<int>(status.level), "system", "temperature",
+                    maximum_temperature->second});
+    }
 }
 
 bool diagnostics::is_ignored(const status_type& status) const {

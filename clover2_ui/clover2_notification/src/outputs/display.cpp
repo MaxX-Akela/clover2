@@ -1,3 +1,4 @@
+#include <arpa/inet.h>
 #include <clover2_common/node_context.hpp>
 #include <clover2_common/util/timer.hpp>
 #include <clover2_display/client.hpp>
@@ -13,8 +14,10 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
+#include <ifaddrs.h>
 #include <memory>
 #include <mutex>
+#include <netinet/in.h>
 #include <stdexcept>
 #include <string>
 #include <unistd.h>
@@ -37,6 +40,35 @@ std::string get_hostname() {
 
     hostname[sizeof(hostname) - 1] = '\0';
     return hostname;
+}
+
+std::string get_network_address(const std::vector<std::string>& interfaces) {
+    ifaddrs* addresses{};
+    if (::getifaddrs(&addresses) != 0) {
+        return "n/a";
+    }
+
+    for (const auto& interface : interfaces) {
+        for (auto* address = addresses; address != nullptr;
+             address = address->ifa_next) {
+            if (address->ifa_name == nullptr || address->ifa_addr == nullptr ||
+                interface != address->ifa_name ||
+                address->ifa_addr->sa_family != AF_INET) {
+                continue;
+            }
+
+            char buffer[INET_ADDRSTRLEN]{};
+            const auto* ipv4 =
+                reinterpret_cast<const sockaddr_in*>(address->ifa_addr);
+            if (::inet_ntop(AF_INET, &ipv4->sin_addr, buffer, sizeof(buffer))) {
+                ::freeifaddrs(addresses);
+                return buffer;
+            }
+        }
+    }
+
+    ::freeifaddrs(addresses);
+    return "n/a";
 }
 
 std::string make_event_key(const std::string& source, const std::string& name) {
@@ -119,6 +151,9 @@ private:
 
         /** @brief Display label rendered before the status message. */
         std::string label;
+
+        /** @brief Interfaces checked by a network status row in priority order. */
+        std::vector<std::string> interfaces;
 
         /** @brief Child statuses rendered on one row by "group" rows. */
         std::vector<std::string> items;
@@ -271,6 +306,15 @@ private:
             m_event_to_status[make_event_key(config.source,
                                              config.event_name)] = status_name;
             m_status_states.emplace(status_name, status_state{});
+        } else if (config.type == "network") {
+            config.interfaces = declare_output_parameter<std::vector<std::string>>(
+                prefix + ".interfaces", config.interfaces);
+            if (config.interfaces.empty()) {
+                throw std::invalid_argument(
+                    "Display network status should define at least one "
+                    "interface: " +
+                    status_name);
+            }
         } else if (config.type == "group") {
             config.items = declare_output_parameter<std::vector<std::string>>(
                 prefix + ".items", config.items);
@@ -558,6 +602,10 @@ private:
         const auto& config = config_it->second;
         if (config.type == "hostname") {
             return format_labeled_message(config.label, get_hostname());
+        }
+        if (config.type == "network") {
+            return format_labeled_message(
+                config.label, get_network_address(config.interfaces));
         }
         if (config.type == "group") {
             std::string result;

@@ -2,7 +2,8 @@
   ros__parameters:
     providers_list:
       - diagnostics
-      - system
+
+    system_event_period: 1.0
 
     output_plugins:
       - led_strip

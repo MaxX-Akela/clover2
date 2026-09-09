@@ -30,9 +30,11 @@
           label: host
 
         network:
-          source: system
-          event_name: network
+          type: network
           label: ""
+          interfaces:
+            - wlan0
+            - eth0
 
         system:
           type: group

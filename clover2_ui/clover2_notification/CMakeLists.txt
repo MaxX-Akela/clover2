@@ -50,10 +50,10 @@ if(BUILD_TESTING)
   )
   target_link_libraries(test_clover2_notification notification_outputs)
 
-  ament_auto_add_gtest(test_system_provider
-    test/test_system_provider.cpp
-    src/provider/system.cpp
+  ament_auto_add_gtest(test_diagnostics_provider
+    test/test_diagnostics_provider.cpp
   )
+  target_link_libraries(test_diagnostics_provider notification_core)
 endif()
 
 ament_auto_package(

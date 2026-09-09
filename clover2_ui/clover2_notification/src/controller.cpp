@@ -13,7 +13,13 @@ controller::controller(const rclcpp::NodeOptions& options)
         "providers_list", {"diagnostics"});
     m_output_ids = declare_parameter<std::vector<std::string>>("output_plugins",
                                                                {"led_strip"});
+    m_system_event_period = declare_parameter<double>("system_event_period",
+                                                      m_system_event_period);
     declare_parameter<std::string>("led_strip.plugin", "led");
+
+    if (m_system_event_period <= 0.0) {
+        throw std::invalid_argument("System event period should be positive");
+    }
 
     try {
         m_node_context = std::make_shared<clover2_common::node_context>(*this);
@@ -94,9 +100,31 @@ controller::~controller() {
 }
 
 void controller::provider_callback(const data::event& event) {
+    if (!should_forward_event(event)) {
+        return;
+    }
+
     for (const auto& output : m_outputs) {
         output->push2queue(event);
     }
+}
+
+bool controller::should_forward_event(const data::event& event) {
+    if (event.source != "system") {
+        return true;
+    }
+
+    const auto now = std::chrono::steady_clock::now();
+    const auto key = event.source + "\n" + event.name;
+    const auto previous_it = m_last_system_event_times.find(key);
+    if (previous_it != m_last_system_event_times.end() &&
+        now - previous_it->second <
+            std::chrono::duration<double>(m_system_event_period)) {
+        return false;
+    }
+
+    m_last_system_event_times.insert_or_assign(key, now);
+    return true;
 }
 
 }  // namespace clover2_notification

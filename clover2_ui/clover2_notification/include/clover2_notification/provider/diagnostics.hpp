@@ -76,6 +76,16 @@ private:
     void process_status(const status_type& status);
 
     /**
+     * @brief Convert configured system diagnostics into display status events.
+     *
+     * System status events are emitted for every received diagnostic update,
+     * including OK states, so display rows keep their values current.
+     *
+     * @param status Diagnostic status to convert.
+     */
+    void process_system_status(const status_type& status);
+
+    /**
      * @brief Check whether a diagnostic status should be ignored by name.
      *
      * @param status Diagnostic status to check.

@@ -38,19 +38,6 @@ bool has_dark_pixels(const sensor_msgs::msg::Image& image) {
                        [](const auto pixel) { return pixel == 0; });
 }
 
-bool has_lit_pixels_in_rows(const sensor_msgs::msg::Image& image,
-                            uint32_t first_row, uint32_t last_row) {
-    for (uint32_t y = first_row; y <= last_row && y < image.height; ++y) {
-        for (uint32_t x = 0; x < image.width; ++x) {
-            if (image.data[y * image.step + x] == 255) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
 bool are_inverted(const sensor_msgs::msg::Image& lhs,
                   const sensor_msgs::msg::Image& rhs) {
     return lhs.width == rhs.width && lhs.height == rhs.height &&
@@ -135,10 +122,11 @@ protected:
             "display.statuses.temperature.event_name", "temperature");
         options.append_parameter_override("display.statuses.temperature.label",
                                           "temp");
-        options.append_parameter_override("display.statuses.network.source",
-                                          "system");
-        options.append_parameter_override("display.statuses.network.event_name",
+        options.append_parameter_override("display.statuses.network.type",
                                           "network");
+        options.append_parameter_override(
+            "display.statuses.network.interfaces",
+            std::vector<std::string>{"lo"});
         options.append_parameter_override("display.statuses.network.label", "");
         options.append_parameter_override("display.alert.enabled", true);
         options.append_parameter_override("display.alert.invert_period", 0.1);
@@ -219,13 +207,12 @@ protected:
     }
 };
 
-class wrapped_status_display_output_test : public display_output_test {
+class invalid_network_display_output_test : public display_output_test {
 protected:
     rclcpp::NodeOptions make_options() const override {
         auto options = display_output_test::make_options();
-        options.append_parameter_override("display.status_names",
-                                          std::vector<std::string>{"network"});
-        options.append_parameter_override("display.alert.enabled", false);
+        options.append_parameter_override(
+            "display.statuses.network.interfaces", std::vector<std::string>{});
         return options;
     }
 };
@@ -287,21 +274,11 @@ TEST_F(invalid_layout_display_output_test,
                  std::invalid_argument);
 }
 
-TEST_F(wrapped_status_display_output_test,
-       wraps_long_status_messages_onto_following_lines) {
+TEST_F(invalid_network_display_output_test,
+       rejects_network_status_without_interfaces) {
     auto output = m_output_loader.createSharedInstance("display");
-    output->initialize(make_context(), "display");
-
-    ASSERT_TRUE(wait_for_images(1));
-    output->push2queue(
-        {0, "system", "network", "wlan0 address 192 168 1 10 connected"});
-    ASSERT_TRUE(wait_for_images(2));
-
-    std::lock_guard<std::mutex> lock(m_mutex);
-    EXPECT_TRUE(has_lit_pixels_in_rows(m_images.back(), 23, 30));
-
-    output->clear();
-    output.reset();
+    EXPECT_THROW(output->initialize(make_context(), "display"),
+                 std::invalid_argument);
 }
 
 TEST_F(display_output_test, redraws_status_when_system_status_events_arrive) {
@@ -317,7 +294,6 @@ TEST_F(display_output_test, redraws_status_when_system_status_events_arrive) {
 
     output->push2queue({0, "system", "cpu", "37.0"});
     output->push2queue({0, "system", "temperature", "52.0"});
-    output->push2queue({0, "system", "network", "wlan0 192.168.1.10"});
 
     ASSERT_TRUE(wait_for_image_change(initial_image));
     {
