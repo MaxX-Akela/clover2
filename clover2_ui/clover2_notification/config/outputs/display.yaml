@@ -14,9 +14,9 @@
           thickness: 1
         title:
           text: Clover2
-          baseline_y: 9
+          baseline_y: 12
         statuses:
-          first_baseline_y: 20
+          first_baseline_y: 24
           line_height: 10
 
       status_names:

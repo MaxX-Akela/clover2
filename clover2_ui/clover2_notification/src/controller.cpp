@@ -40,37 +40,56 @@ controller::controller(const rclcpp::NodeOptions& options)
         }
 
         for (const auto& output_id : m_output_ids) {
-            const auto enabled_param = output_id + ".enabled";
-            if (!has_parameter(enabled_param)) {
-                declare_parameter<bool>(enabled_param, true);
-            }
-
-            bool enabled = true;
-            if (!get_parameter(enabled_param, enabled) || !enabled) {
-                RCLCPP_INFO(get_logger(),
-                            "Notification output disabled: id='%s'",
-                            output_id.c_str());
-                continue;
-            }
-
-            const auto plugin_param = output_id + ".plugin";
-            if (!has_parameter(plugin_param)) {
-                declare_parameter<std::string>(plugin_param);
-            }
-
+            std::shared_ptr<output> plugin;
             std::string plugin_name;
-            if (!get_parameter(plugin_param, plugin_name) ||
-                plugin_name.empty()) {
-                throw std::runtime_error(
-                    "Notification output plugin is not set: " + plugin_param);
-            }
 
-            auto plugin = m_output_loader.createSharedInstance(plugin_name);
-            plugin->initialize(m_node_context, output_id);
-            m_outputs.emplace_back(std::move(plugin));
-            RCLCPP_INFO(get_logger(),
-                        "Loaded notification output: id='%s' plugin='%s'",
-                        output_id.c_str(), plugin_name.c_str());
+            try {
+                const auto enabled_param = output_id + ".enabled";
+                if (!has_parameter(enabled_param)) {
+                    declare_parameter<bool>(enabled_param, true);
+                }
+
+                bool enabled = true;
+                if (!get_parameter(enabled_param, enabled) || !enabled) {
+                    RCLCPP_INFO(get_logger(),
+                                "Notification output disabled: id='%s'",
+                                output_id.c_str());
+                    continue;
+                }
+
+                const auto plugin_param = output_id + ".plugin";
+                if (!has_parameter(plugin_param)) {
+                    declare_parameter<std::string>(plugin_param);
+                }
+
+                if (!get_parameter(plugin_param, plugin_name) ||
+                    plugin_name.empty()) {
+                    throw std::runtime_error(
+                        "Notification output plugin is not set: " + plugin_param);
+                }
+
+                plugin = m_output_loader.createSharedInstance(plugin_name);
+                plugin->initialize(m_node_context, output_id);
+                m_outputs.emplace_back(std::move(plugin));
+                RCLCPP_INFO(get_logger(),
+                            "Loaded notification output: id='%s' plugin='%s'",
+                            output_id.c_str(), plugin_name.c_str());
+            } catch (const std::exception& e) {
+                RCLCPP_ERROR(get_logger(),
+                             "Failed to initialize notification output: "
+                             "id='%s' plugin='%s': %s",
+                             output_id.c_str(), plugin_name.c_str(), e.what());
+                if (plugin) {
+                    try {
+                        plugin->clear();
+                    } catch (const std::exception& clear_error) {
+                        RCLCPP_WARN(get_logger(),
+                                    "Failed to clear notification output "
+                                    "id='%s': %s",
+                                    output_id.c_str(), clear_error.what());
+                    }
+                }
+            }
         }
     } catch (const std::exception& e) {
         RCLCPP_ERROR(get_logger(), "Failed to initialize notification: %s",

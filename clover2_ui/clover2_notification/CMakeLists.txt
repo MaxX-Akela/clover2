@@ -47,8 +47,9 @@ if(BUILD_TESTING)
     test/test_output.cpp
     test/test_led_output.cpp
     test/test_display_output.cpp
+    test/test_controller.cpp
   )
-  target_link_libraries(test_clover2_notification notification_outputs)
+  target_link_libraries(test_clover2_notification notification_core)
 
   ament_auto_add_gtest(test_diagnostics_provider
     test/test_diagnostics_provider.cpp

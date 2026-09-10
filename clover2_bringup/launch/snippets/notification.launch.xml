@@ -4,7 +4,7 @@
 
     <arg name="led_strip" default="true" />
     <arg name="display" default="true" />
-    <arg name="start_delay" default="5.0" />
+    <arg name="start_delay" default="10.0" />
 
     <timer period="$(var start_delay)">
         <node pkg="clover2_notification" exec="notification" name="notification"
