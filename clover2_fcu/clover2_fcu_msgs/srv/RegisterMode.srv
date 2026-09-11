@@ -1,0 +1,8 @@
+# Register a flight mode with the bridge. The mode then owns a bond: when
+# the bond breaks (mode node died), the bridge removes the registration and
+# deactivates it if it was active.
+string name
+---
+bool ok
+uint32 mode_id
+string error
