@@ -22,14 +22,6 @@ using start_animation = clover2_led_msgs::srv::StartAnimation;
 
 class led_output_test : public ::testing::Test {
 protected:
-    static void SetUpTestSuite() {
-        if (!rclcpp::ok()) {
-            rclcpp::init(0, nullptr);
-        }
-    }
-
-    static void TearDownTestSuite() { rclcpp::shutdown(); }
-
     void SetUp() override {
         m_fake_driver = std::make_shared<rclcpp::Node>("fake_led_driver");
         m_info_service = m_fake_driver->create_service<

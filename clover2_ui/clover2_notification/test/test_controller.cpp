@@ -18,14 +18,6 @@ using get_driver_info = clover2_display_msgs::srv::GetDriverInfo;
 
 class controller_test : public ::testing::Test {
 protected:
-    static void SetUpTestSuite() {
-        if (!rclcpp::ok()) {
-            rclcpp::init(0, nullptr);
-        }
-    }
-
-    static void TearDownTestSuite() { rclcpp::shutdown(); }
-
     void SetUp() override {
         m_fake_display = std::make_shared<rclcpp::Node>("fake_controller_display");
         m_info_service = m_fake_display->create_service<get_driver_info>(

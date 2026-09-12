@@ -1,10 +1,12 @@
 #include <clover2_notification/provider/diagnostics.hpp>
 #include <clover2_notification/provider/factory.hpp>
+#include <clover2_notification/provider/temperature.hpp>
 
 namespace clover2_notification::provider {
 
 factory::factory() {
     add<diagnostics>();
+    add<temperature>();
 }
 
 factory& factory::instance() {

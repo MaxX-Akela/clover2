@@ -1,4 +1,5 @@
 #include <clover2_notification/provider/diagnostics.hpp>
+#include <clover2_common/util/parameter.hpp>
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
 
 #include <functional>
@@ -68,28 +69,19 @@ void diagnostics::initialize(
     m_previous.clear();
     m_logger = m_node_context->get_logger().get_child("diagnostics_provider");
 
-    const auto topic =
-        rclcpp::node_interfaces::get_node_parameters_interface(m_node_context)
-            ->declare_parameter(
-                "providers.diagnostics.topic",
-                rclcpp::ParameterValue(
-                    std::string{clover2_common::diagnostics::client::default_topic}))
-            .get<std::string>();
-
-    m_ignore_name_patterns =
-        rclcpp::node_interfaces::get_node_parameters_interface(m_node_context)
-            ->declare_parameter(
-                "providers.diagnostics.ignore_names",
-                rclcpp::ParameterValue(std::vector<std::string>{}))
-            .get<std::vector<std::string>>();
+    const auto parameters = m_node_context->get_node_parameters_interface();
+    clover2_common::util::safe_declare_and_get(
+        parameters, "providers.diagnostics.topic", m_topic);
+    clover2_common::util::safe_declare_and_get(
+        parameters, "providers.diagnostics.ignore_names", m_ignore_name_patterns);
 
     m_client = std::make_shared<clover2_common::diagnostics::client>(
-        m_node_context, topic);
+        m_node_context, m_topic);
     m_client->set_callback(std::bind(&diagnostics::diagnostics_callback, this,
                                      std::placeholders::_1));
 
     RCLCPP_INFO(*m_logger, "Subscribed to diagnostics topic: %s",
-                topic.c_str());
+                m_topic.c_str());
     for (const auto& pattern : m_ignore_name_patterns) {
         RCLCPP_INFO(*m_logger, "Ignoring diagnostic notifications by name: %s",
                     pattern.c_str());
@@ -102,7 +94,6 @@ void diagnostics::cleanup() {
         m_client.reset();
     }
     m_previous.clear();
-    m_ignore_name_patterns.clear();
     m_callback = nullptr;
     m_node_context.reset();
 }

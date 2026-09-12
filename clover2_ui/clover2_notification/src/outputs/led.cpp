@@ -1,4 +1,5 @@
 #include <clover2_common/node_context.hpp>
+#include <clover2_common/util/parameter.hpp>
 #include <clover2_common/util/timer.hpp>
 #include <clover2_led/client.hpp>
 #include <clover2_notification/output.hpp>
@@ -24,10 +25,9 @@ T declare_required_parameter(
     const std::shared_ptr<clover2_common::node_context>& node_context,
     const std::string& name) {
     try {
-        auto value =
-            rclcpp::node_interfaces::get_node_parameters_interface(node_context)
-                ->declare_parameter(name, rclcpp::ParameterValue(T{}))
-                .get<T>();
+        T value{};
+        clover2_common::util::safe_declare_and_get(
+            node_context->get_node_parameters_interface(), name, value);
         if constexpr (std::is_same_v<T, std::string>) {
             if (value.empty()) {
                 throw std::runtime_error("empty string");

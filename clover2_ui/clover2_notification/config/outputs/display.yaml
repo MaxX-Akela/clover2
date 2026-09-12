@@ -10,24 +10,25 @@
           left: 2
           right: 2
         font:
-          scale: 0.30
+          scale: 0.45
           thickness: 1
         title:
-          text: Clover2
+          text: ""
           baseline_y: 12
         statuses:
-          first_baseline_y: 24
-          line_height: 10
+          first_baseline_y: 12
+          line_height: 15
 
       status_names:
         - hostname
         - network
-        - system
+        - cpu
+        - temperature
 
       statuses:
         hostname:
           type: hostname
-          label: host
+          label: ""
 
         network:
           type: network
@@ -35,13 +36,6 @@
           interfaces:
             - wlan0
             - eth0
-
-        system:
-          type: group
-          items:
-            - cpu
-            - temperature
-          separator: " "
 
         cpu:
           source: system

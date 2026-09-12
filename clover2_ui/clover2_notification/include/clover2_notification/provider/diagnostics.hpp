@@ -98,6 +98,7 @@ private:
     callback_type m_callback;
     std::shared_ptr<clover2_common::diagnostics::client> m_client;
     status_map m_previous;
+    std::string m_topic{clover2_common::diagnostics::client::default_topic};
     std::vector<std::string> m_ignore_name_patterns;
     std::optional<rclcpp::Logger> m_logger;
 };

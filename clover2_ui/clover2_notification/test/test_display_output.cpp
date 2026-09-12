@@ -50,14 +50,6 @@ bool are_inverted(const sensor_msgs::msg::Image& lhs,
 
 class display_output_test : public ::testing::Test {
 protected:
-    static void SetUpTestSuite() {
-        if (!rclcpp::ok()) {
-            rclcpp::init(0, nullptr);
-        }
-    }
-
-    static void TearDownTestSuite() { rclcpp::shutdown(); }
-
     void SetUp() override {
         m_fake_driver = std::make_shared<rclcpp::Node>("fake_display_driver");
         m_info_service = m_fake_driver->create_service<get_driver_info>(

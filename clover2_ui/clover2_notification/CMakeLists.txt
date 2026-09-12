@@ -44,17 +44,15 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
 
   ament_auto_add_gtest(test_clover2_notification
+    test/main.cpp
     test/test_output.cpp
     test/test_led_output.cpp
     test/test_display_output.cpp
     test/test_controller.cpp
+    test/test_diagnostics_provider.cpp
+    test/test_temperature_provider.cpp
   )
   target_link_libraries(test_clover2_notification notification_core)
-
-  ament_auto_add_gtest(test_diagnostics_provider
-    test/test_diagnostics_provider.cpp
-  )
-  target_link_libraries(test_diagnostics_provider notification_core)
 endif()
 
 ament_auto_package(

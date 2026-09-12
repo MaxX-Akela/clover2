@@ -20,4 +20,4 @@ analyzers:
     system:
       type: diagnostic_aggregator/GenericAnalyzer
       path: System
-      contains: ["/system", "CPU Information", "Sensor Status"]
+      contains: ["/system", "CPU Information"]

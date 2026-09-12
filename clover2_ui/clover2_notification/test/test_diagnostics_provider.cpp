@@ -30,14 +30,6 @@ key_value make_value(const std::string& key, const std::string& value) {
 
 class diagnostics_provider_test : public ::testing::Test {
 protected:
-    static void SetUpTestSuite() {
-        if (!rclcpp::ok()) {
-            rclcpp::init(0, nullptr);
-        }
-    }
-
-    static void TearDownTestSuite() { rclcpp::shutdown(); }
-
     void SetUp() override {
         rclcpp::NodeOptions options;
         options.append_parameter_override("providers.diagnostics.topic",
@@ -116,6 +108,37 @@ TEST_F(diagnostics_provider_test,
     ASSERT_EQ(m_events.size(), 2U);
     EXPECT_EQ(m_events[0], (event{0, "system", "cpu", "37.25"}));
     EXPECT_EQ(m_events[1], (event{1, "system", "temperature", "63.5"}));
+}
+
+TEST_F(diagnostics_provider_test, reinitializes_after_cleanup) {
+    m_provider.cleanup();
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_events.clear();
+    }
+
+    m_provider.initialize(
+        std::make_shared<clover2_common::node_context>(*m_node),
+        [this](const event& value) {
+            {
+                std::lock_guard<std::mutex> lock(m_mutex);
+                m_events.push_back(value);
+            }
+            m_cv.notify_all();
+        });
+
+    diagnostic_status status;
+    status.name = "/test/diagnostic";
+    status.level = diagnostic_status::WARN;
+    status.message = "warning";
+    diagnostic_array message;
+    message.status = {status};
+    publish(message);
+
+    ASSERT_TRUE(wait_for_events(1));
+    std::lock_guard<std::mutex> lock(m_mutex);
+    EXPECT_EQ(m_events[0], (event{1, "diagnostics", "/test/diagnostic",
+                                  "warning"}));
 }
 
 }  // namespace

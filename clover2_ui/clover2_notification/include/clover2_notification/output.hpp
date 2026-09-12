@@ -8,6 +8,7 @@
 
 // clover2
 #include <clover2_common/node_context.hpp>
+#include <clover2_common/util/parameter.hpp>
 #include <clover2_notification/data/event.hpp>
 
 // STL
@@ -108,21 +109,6 @@ protected:
     }
 
     /**
-     * @brief Declare and read a parameter through node context.
-     *
-     * @param name Fully-qualified parameter name.
-     * @param default_value Parameter default value.
-     * @return Declared parameter value.
-     */
-    template <typename T>
-    T declare_parameter(const std::string& name, const T& default_value) const {
-        return rclcpp::node_interfaces::get_node_parameters_interface(
-                   m_node_context)
-            ->declare_parameter(name, rclcpp::ParameterValue(default_value))
-            .get<T>();
-    }
-
-    /**
      * @brief Declare and read an output-local parameter.
      *
      * @param name Parameter name relative to the output id namespace.
@@ -132,7 +118,11 @@ protected:
     template <typename T>
     T declare_output_parameter(const std::string& name,
                                const T& default_value) const {
-        return declare_parameter<T>(id() + "." + name, default_value);
+        T value = default_value;
+        clover2_common::util::safe_declare_and_get(
+            m_node_context->get_node_parameters_interface(),
+            id() + "." + name, value);
+        return value;
     }
 
     /**
