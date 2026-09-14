@@ -549,6 +549,7 @@
 
 Clover5FPV/Firmware
 Clover5FPV/BetaflightSetup
+Clover5FPV/Radio
 ```
 
 ## Прошивка
