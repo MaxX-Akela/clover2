@@ -75,7 +75,7 @@
 1. Нажмите кнопку **MDL**.
 2. Выберите свободную ячейку и нажмите и удерживайте колесо-энкодер.
 
-    ```{figure} @assets@/ru/assembly/clover5-fpv/radio/model/create-model-menu.webp
+    ```{figure} @assets@/common/setup/radio/model/create-model-menu.webp
     :alt: Выбор свободной ячейки модели
     :width: 450px
     :align: center
@@ -84,7 +84,7 @@
 3. Выберите **CREATE MODEL**.
 4. Нажмите **PAGE >**, колесом-энкодером выберите **Model name** и задайте имя модели, например `CLOVER FPV`.
 
-    ```{figure} @assets@/ru/assembly/clover5-fpv/radio/model/model-name.webp
+    ```{figure} @assets@/common/setup/radio/model/model-name.webp
     :alt: Настройка имени модели квадрокоптера
     :width: 450px
     :align: center
@@ -92,13 +92,13 @@
 
 5. Нажмите **RTN**, прокрутите страницу вниз и в разделе **Internal RF** установите **Mode** в значение **CRSF**.
 
-    ```{figure} @assets@/ru/assembly/clover5-fpv/radio/model/internal-rf-disabled.webp
+    ```{figure} @assets@/common/setup/radio/model/internal-rf-disabled.webp
     :alt: Выключенный внутренний радиомодуль
     :width: 450px
     :align: center
     ```
 
-    ```{figure} @assets@/ru/assembly/clover5-fpv/radio/model/internal-rf-crsf.webp
+    ```{figure} @assets@/common/setup/radio/model/internal-rf-crsf.webp
     :alt: Внутренний радиомодуль в режиме CRSF
     :width: 450px
     :align: center
@@ -111,19 +111,19 @@
    - **CH7 / AUX3** — **SC**;
    - **CH8 / AUX4** — **SD**.
 
-    ```{figure} @assets@/ru/assembly/clover5-fpv/radio/model/mix-channel-settings.webp
+    ```{figure} @assets@/common/setup/radio/model/mix-channel-settings.webp
     :alt: Настройка переключателя на дополнительном канале
     :width: 450px
     :align: center
     ```
 
-    ```{figure} @assets@/ru/assembly/clover5-fpv/radio/model/mixes-channels.webp
+    ```{figure} @assets@/common/setup/radio/model/mixes-channels.webp
     :alt: Основные и дополнительные каналы модели
     :width: 450px
     :align: center
     ```
 
-    ```{figure} @assets@/ru/assembly/clover5-fpv/radio/model/mixes-switches.webp
+    ```{figure} @assets@/common/setup/radio/model/mixes-switches.webp
     :alt: Список настроенных переключателей
     :width: 450px
     :align: center
@@ -139,7 +139,7 @@
 2. Включите аппаратуру, подключите кабель USB Type-C к верхнему USB-порту и выберите **USB Storage (SD)**.
 3. Откройте накопитель аппаратуры и перейдите в каталог **MODELS**.
 
-    ```{figure} @assets@/ru/assembly/clover5-fpv/radio/model/usb-storage-models-folder.webp
+    ```{figure} @assets@/common/setup/radio/model/usb-storage-models-folder.webp
     :alt: Каталог MODELS на карте памяти аппаратуры
     :width: 600px
     :align: center
@@ -147,7 +147,7 @@
 
 4. Скопируйте в каталог **MODELS** файл `model05.yml`.
 
-    ```{figure} @assets@/ru/assembly/clover5-fpv/radio/model/model-file-copied.webp
+    ```{figure} @assets@/common/setup/radio/model/model-file-copied.webp
     :alt: Файл готовой модели в каталоге MODELS
     :width: 600px
     :align: center
