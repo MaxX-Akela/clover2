@@ -542,14 +542,19 @@
 Проверьте, что ни один из компонентов не остался незакрепленным. Перед первым включением убедитесь, что пропеллеры не задевают кожух и провода.
 ```
 
-## Настройка
-
 ```{toctree}
 :titlesonly:
 :maxdepth: 1
 :hidden:
 
+Clover5FPV/Firmware
 Clover5FPV/BetaflightSetup
 ```
+
+## Прошивка
+
+Перед настройкой замените прошивку PX4 на Betaflight по инструкции {doc}`Прошивка <Clover5FPV/Firmware>`.
+
+## Настройка
 
 После завершения сборки выполните {doc}`настройку FPV в Betaflight <Clover5FPV/BetaflightSetup>`.
