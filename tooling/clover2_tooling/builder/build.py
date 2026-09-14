@@ -91,11 +91,11 @@ async def provision(settings: BuilderSettings, payload: dict, image: pathlib.Pat
         async with asyncio.TaskGroup() as tg:
             tg.create_task(_load_build_extras(qemu, settings.project_dir))
             tg.create_task(_run_stage(qemu, env, '"00-common,10-ros,11-ros-extra,30-docker"'))
-            tg.create_task(_run_stage(qemu, env, "20-camera,"))
-            tg.create_task(_run_stage(qemu, env, "40-hardware,"))
-            tg.create_task(_run_stage(qemu, env, "50-netplan,"))
-            tg.create_task(_run_stage(qemu, env, "60-user,"))
-            tg.create_task(_run_stage(qemu, env, "71-copy-clover2-files,"))
+            tg.create_task(_run_stage(qemu, env, '"20-camera"'))
+            tg.create_task(_run_stage(qemu, env, '"40-hardware"'))
+            tg.create_task(_run_stage(qemu, env, '"50-netplan"'))
+            tg.create_task(_run_stage(qemu, env, '"60-user"'))
+            tg.create_task(_run_stage(qemu, env, '"71-copy-clover2-files"'))
 
         logger.info("Run over stages")
         await qemu.execute(
