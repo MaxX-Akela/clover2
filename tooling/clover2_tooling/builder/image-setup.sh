@@ -73,6 +73,7 @@ if [ "$LIST" -eq 1 ]; then
     for stage in "$STAGES_DIR"/*.sh; do
         [ -f "$stage" ] && basename "$stage"
     done
+
     exit 0
 fi
 

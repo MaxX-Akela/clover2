@@ -51,7 +51,6 @@ sudo chown -R $USER:$USER /opt/clover2""")
 
 
 async def _run_stage(qemu: Qemu, env: str, stage: str) -> None:
-    logger.info("Run 00-common stage")
     await qemu.execute(
         f"cd {VM_REPO_DIR} && {env} bash {RUNNER_PATH} --stages {stage}".strip())
 

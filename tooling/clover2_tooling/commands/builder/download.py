@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def default_output(settings, cfg_name: str, version: str) -> pathlib.Path:
-    return settings.project_dir / f"build-{cfg_name}-image" / f"clover2-{version}.img"
+    return settings.project_dir / f"build-{cfg_name}-image" / f"{cfg_name}-{version}.img"
 
 
 class DownloadCommand(Command):
@@ -23,7 +23,7 @@ class DownloadCommand(Command):
         parser.add_argument(
             "-o", "--output",
             type=pathlib.Path,
-            help="Output .img path (default: build-<cfg>/clover2-<version>.img)"
+            help="Output .img path (default: build-<cfg>/<cfg_name>-<version>.img)"
         )
 
     def run(self, args: argparse.Namespace) -> None:
