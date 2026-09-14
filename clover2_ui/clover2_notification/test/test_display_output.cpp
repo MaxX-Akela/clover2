@@ -94,32 +94,11 @@ protected:
         options.append_parameter_override("display.base_path", "test_display");
         options.append_parameter_override("display.refresh_period", 0.1);
         options.append_parameter_override(
-            "display.status_names",
-            std::vector<std::string>{"network", "system"});
-        options.append_parameter_override("display.statuses.system.type",
-                                          "group");
-        options.append_parameter_override(
-            "display.statuses.system.items",
-            std::vector<std::string>{"cpu", "temperature"});
-        options.append_parameter_override("display.statuses.system.separator",
-                                          " ");
-        options.append_parameter_override("display.statuses.cpu.source",
-                                          "system");
-        options.append_parameter_override("display.statuses.cpu.event_name",
-                                          "cpu");
-        options.append_parameter_override("display.statuses.cpu.label", "cpu");
-        options.append_parameter_override("display.statuses.temperature.source",
-                                          "system");
-        options.append_parameter_override(
-            "display.statuses.temperature.event_name", "temperature");
-        options.append_parameter_override("display.statuses.temperature.label",
-                                          "temp");
-        options.append_parameter_override("display.statuses.network.type",
-                                          "network");
-        options.append_parameter_override(
-            "display.statuses.network.interfaces",
-            std::vector<std::string>{"lo"});
-        options.append_parameter_override("display.statuses.network.label", "");
+            "display.parameters",
+            std::vector<std::string>{"hostname", "network", "cpu",
+                                     "temperature"});
+        options.append_parameter_override("display.network.interfaces",
+                                          std::vector<std::string>{"lo"});
         options.append_parameter_override("display.alert.enabled", true);
         return options;
     }
@@ -176,34 +155,21 @@ protected:
         "clover2_notification", "clover2_notification::output"};
 };
 
-class custom_layout_display_output_test : public display_output_test {
-protected:
-    rclcpp::NodeOptions make_options() const override {
-        auto options = display_output_test::make_options();
-        options.append_parameter_override("display.layout.margin.left", 30);
-        options.append_parameter_override("display.layout.title.baseline_y",
-                                          20);
-        options.append_parameter_override(
-            "display.layout.statuses.first_baseline_y", 40);
-        return options;
-    }
-};
-
 class invalid_layout_display_output_test : public display_output_test {
 protected:
     rclcpp::NodeOptions make_options() const override {
         auto options = display_output_test::make_options();
-        options.append_parameter_override("display.layout.font.scale", 0.0);
+        options.append_parameter_override("display.font.scale", 0.0);
         return options;
     }
 };
 
-class invalid_network_display_output_test : public display_output_test {
+class empty_parameters_display_output_test : public display_output_test {
 protected:
     rclcpp::NodeOptions make_options() const override {
         auto options = display_output_test::make_options();
-        options.append_parameter_override(
-            "display.statuses.network.interfaces", std::vector<std::string>{});
+        options.append_parameter_override("display.parameters",
+                                          std::vector<std::string>{});
         return options;
     }
 };
@@ -230,26 +196,6 @@ TEST_F(display_output_test,
     output.reset();
 }
 
-TEST_F(custom_layout_display_output_test,
-       renders_text_at_configured_positions) {
-    auto output = m_output_loader.createSharedInstance("display");
-    output->initialize(make_context(), "display");
-
-    ASSERT_TRUE(wait_for_images(1));
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        const auto& image = m_images.back();
-        for (uint32_t y = 0; y < image.height; ++y) {
-            for (uint32_t x = 0; x < 30U; ++x) {
-                EXPECT_EQ(image.data[y * image.step + x], 0);
-            }
-        }
-    }
-
-    output->clear();
-    output.reset();
-}
-
 TEST_F(invalid_layout_display_output_test,
        rejects_invalid_layout_configuration) {
     auto output = m_output_loader.createSharedInstance("display");
@@ -257,8 +203,7 @@ TEST_F(invalid_layout_display_output_test,
                  std::invalid_argument);
 }
 
-TEST_F(invalid_network_display_output_test,
-       rejects_network_status_without_interfaces) {
+TEST_F(empty_parameters_display_output_test, rejects_empty_parameter_list) {
     auto output = m_output_loader.createSharedInstance("display");
     EXPECT_THROW(output->initialize(make_context(), "display"),
                  std::invalid_argument);
@@ -290,7 +235,7 @@ TEST_F(display_output_test, redraws_status_when_system_status_events_arrive) {
 }
 
 TEST_F(display_output_test,
-        alternates_screen_inversion_while_a_status_has_nonzero_priority) {
+       alternates_screen_inversion_while_a_status_has_nonzero_priority) {
     auto output = m_output_loader.createSharedInstance("display");
     output->initialize(make_context(), "display");
 

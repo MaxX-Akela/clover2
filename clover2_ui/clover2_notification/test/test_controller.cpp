@@ -76,7 +76,8 @@ TEST_F(controller_test, continues_loading_outputs_after_an_output_fails) {
     options.append_parameter_override("display.plugin", "display");
     options.append_parameter_override("display.base_path", "test_controller_display");
     options.append_parameter_override("display.refresh_period", 0.01);
-    options.append_parameter_override("display.status_names", std::vector<std::string>{});
+    options.append_parameter_override("display.parameters",
+                                      std::vector<std::string>{"cpu"});
 
     m_controller = std::make_shared<clover2_notification::controller>(options);
     m_executor.add_node(m_fake_display);

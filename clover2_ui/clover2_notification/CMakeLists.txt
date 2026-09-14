@@ -18,7 +18,13 @@ ament_auto_find_build_dependencies()
 
 ament_auto_add_library(notification_outputs SHARED
   src/outputs/led.cpp
-  src/outputs/display.cpp)
+  src/outputs/display.cpp
+  src/outputs/display_screen.cpp
+  src/outputs/display_ui/widget.cpp
+  src/outputs/display_ui/layout.cpp
+  src/outputs/display_ui/label.cpp
+  src/outputs/display_ui/hbox_layout.cpp
+  src/outputs/display_ui/vbox_layout.cpp)
 
 target_link_libraries(notification_outputs ${OpenCV_LIBS})
 target_include_directories(notification_outputs PUBLIC ${OpenCV_INCLUDE_DIRS})
