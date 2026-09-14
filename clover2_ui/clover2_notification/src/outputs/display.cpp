@@ -96,15 +96,10 @@ public:
             m_refresh_timer->cancel();
             m_refresh_timer.reset();
         }
-        if (m_alert_timer) {
-            m_alert_timer->cancel();
-            m_alert_timer.reset();
-        }
 
         {
             std::lock_guard<std::mutex> lock(m_status_mutex);
             m_alert_active = false;
-            m_invert_screen = false;
         }
         output::clear();
         render_and_send();
@@ -190,16 +185,10 @@ private:
         load_status_configs();
         m_alert_enabled =
             declare_output_parameter<bool>("alert.enabled", m_alert_enabled);
-        m_alert_invert_period = declare_output_parameter<double>(
-            "alert.invert_period", m_alert_invert_period);
 
         if (m_refresh_period <= 0.0) {
             throw std::invalid_argument(
                 "Display refresh_period should be positive");
-        }
-        if (m_alert_invert_period <= 0.0) {
-            throw std::invalid_argument(
-                "Display alert.invert_period should be positive");
         }
 
         m_client = std::make_shared<clover2_display::client>(node_context(),
@@ -213,12 +202,10 @@ private:
 
         RCLCPP_INFO(m_logger,
                     "Display output initialized: base_path='%s' "
-                    "refresh_period=%.2fs title='%s' statuses=%zu alert=%s "
-                    "invert_period=%.2fs",
+                    "refresh_period=%.2fs title='%s' statuses=%zu alert=%s",
                     m_base_path.c_str(), m_refresh_period,
                     m_layout.title.c_str(), m_status_names.size(),
-                    m_alert_enabled ? "enabled" : "disabled",
-                    m_alert_invert_period);
+                    m_alert_enabled ? "enabled" : "disabled");
 
         render_and_send();
     }
@@ -351,71 +338,24 @@ private:
             return;
         }
 
-        if (update_status_event(event)) {
-            render_and_send();
-        }
-
-        done();
-    }
-
-    /** @brief Update configured status row from matching event. */
-    bool update_status_event(const data::event& event) {
         const auto status_it =
             m_event_to_status.find(make_event_key(event.source, event.name));
-        if (status_it == m_event_to_status.end()) {
-            return false;
-        }
-
-        {
+        if (status_it != m_event_to_status.end()) {
             std::lock_guard<std::mutex> lock(m_status_mutex);
             auto& state = m_status_states[status_it->second];
             state.priority = event.priority;
             state.message = event.message;
-        }
 
-        update_alert_state();
-        return true;
-    }
-
-    /** @brief Start or stop screen inversion according to status priorities. */
-    void update_alert_state() {
-        bool active{};
-        {
-            std::lock_guard<std::mutex> lock(m_status_mutex);
-            active =
+            m_alert_active =
                 m_alert_enabled &&
                 std::any_of(m_status_states.begin(), m_status_states.end(),
                             [](const auto& entry) {
                                 return entry.second.priority !=
                                        static_cast<int>(data::priority::ok);
                             });
-            if (active == m_alert_active) {
-                return;
-            }
-
-            m_alert_active = active;
-            m_invert_screen = false;
         }
 
-        if (!active) {
-            if (m_alert_timer) {
-                m_alert_timer->cancel();
-                m_alert_timer.reset();
-            }
-            return;
-        }
-
-        const auto period =
-            std::chrono::duration_cast<std::chrono::nanoseconds>(
-                std::chrono::duration<double>(m_alert_invert_period));
-        m_alert_timer = clover2_common::util::create_timer(
-            node_context(), period, [this]() {
-                {
-                    std::lock_guard<std::mutex> lock(m_status_mutex);
-                    m_invert_screen = !m_invert_screen;
-                }
-                render_and_send();
-            });
+        done();
     }
 
     /** @brief Render the current screen state and publish it to display. */
@@ -438,13 +378,13 @@ private:
         render_status(image);
 
         cv::threshold(image, image, 127, 255, cv::THRESH_BINARY);
-        bool invert_screen{};
+        bool alert_active{};
         {
             std::lock_guard<std::mutex> lock(m_status_mutex);
-            invert_screen = m_alert_active && m_invert_screen;
+            alert_active = m_alert_active;
         }
 
-        if (invert_screen) {
+        if (alert_active) {
             cv::bitwise_not(image, image);
         }
 
@@ -646,13 +586,10 @@ private:
     std::unordered_map<std::string, status_state> m_status_states;
     std::unordered_map<std::string, std::string> m_event_to_status;
     bool m_alert_enabled{true};
-    double m_alert_invert_period{0.5};
     bool m_alert_active{false};
-    bool m_invert_screen{false};
 
     std::shared_ptr<clover2_display::client> m_client;
     rclcpp::TimerBase::SharedPtr m_refresh_timer;
-    rclcpp::TimerBase::SharedPtr m_alert_timer;
     std::mutex m_render_mutex;
     mutable std::mutex m_status_mutex;
     rclcpp::Logger m_logger{rclcpp::get_logger("notification_display_output")};

@@ -49,4 +49,3 @@
 
       alert:
         enabled: true
-        invert_period: 0.5
