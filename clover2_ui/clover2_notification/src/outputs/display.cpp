@@ -100,6 +100,7 @@ public:
         {
             std::lock_guard<std::mutex> lock(m_status_mutex);
             m_alert_active = false;
+            m_invert_screen = false;
         }
         output::clear();
         render_and_send();
@@ -346,6 +347,7 @@ private:
             state.priority = event.priority;
             state.message = event.message;
 
+            const bool alert_was_active = m_alert_active;
             m_alert_active =
                 m_alert_enabled &&
                 std::any_of(m_status_states.begin(), m_status_states.end(),
@@ -353,6 +355,11 @@ private:
                                 return entry.second.priority !=
                                        static_cast<int>(data::priority::ok);
                             });
+            if (m_alert_active && !alert_was_active) {
+                m_invert_screen = true;
+            } else if (!m_alert_active) {
+                m_invert_screen = false;
+            }
         }
 
         done();
@@ -378,13 +385,18 @@ private:
         render_status(image);
 
         cv::threshold(image, image, 127, 255, cv::THRESH_BINARY);
-        bool alert_active{};
+        bool invert_screen{};
         {
             std::lock_guard<std::mutex> lock(m_status_mutex);
-            alert_active = m_alert_active;
+            invert_screen = m_alert_active && m_invert_screen;
+            if (m_alert_active) {
+                m_invert_screen = !m_invert_screen;
+            } else {
+                m_invert_screen = false;
+            }
         }
 
-        if (alert_active) {
+        if (invert_screen) {
             cv::bitwise_not(image, image);
         }
 
@@ -587,6 +599,7 @@ private:
     std::unordered_map<std::string, std::string> m_event_to_status;
     bool m_alert_enabled{true};
     bool m_alert_active{false};
+    bool m_invert_screen{false};
 
     std::shared_ptr<clover2_display::client> m_client;
     rclcpp::TimerBase::SharedPtr m_refresh_timer;

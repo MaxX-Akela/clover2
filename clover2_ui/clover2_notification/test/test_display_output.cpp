@@ -290,7 +290,7 @@ TEST_F(display_output_test, redraws_status_when_system_status_events_arrive) {
 }
 
 TEST_F(display_output_test,
-        permanently_inverts_screen_while_a_status_has_nonzero_priority) {
+        alternates_screen_inversion_while_a_status_has_nonzero_priority) {
     auto output = m_output_loader.createSharedInstance("display");
     output->initialize(make_context(), "display");
 
@@ -310,7 +310,7 @@ TEST_F(display_output_test,
     ASSERT_TRUE(wait_for_images(image_count + 1));
     {
         std::lock_guard<std::mutex> lock(m_mutex);
-        EXPECT_EQ(m_images.back().data, alert_image.data);
+        EXPECT_TRUE(are_inverted(m_images.back(), alert_image));
     }
 
     output->clear();
