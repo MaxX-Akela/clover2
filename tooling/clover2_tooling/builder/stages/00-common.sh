@@ -1,8 +1,9 @@
 log_info "Remove snap"
 sudo apt purge snapd -y
 
-log_info "Upgrade system"
+log_info "Update system"
 sudo apt-get update -qq >/dev/null
+log_info "Upgrade system"
 sudo apt-get upgrade -qy >/dev/null
 
 log_info "Install common packages"
@@ -30,7 +31,6 @@ sudo apt-get install -qy \
     meson \
     network-manager \
     ninja-build \
-    openssl \
     openssl \
     pkg-config \
     pybind11-dev \
@@ -61,6 +61,3 @@ done
 log_info "Install vscodium extension"
 wget https://open-vsx.org/api/meta/pyrefly/linux-arm64/1.0.0/file/meta.pyrefly-1.0.0@linux-arm64.vsix -O /tmp/meta.pyrefly-1.0.0@linux-arm64.vsix
 /opt/vscodium/bin/codium-server --install-extension /tmp/meta.pyrefly-1.0.0@linux-arm64.vsix
-
-sudo apt-get autoclean
-sudo apt-get clean

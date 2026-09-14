@@ -1,10 +1,7 @@
-log_info "Build clover2 workspace"
-
-cd "$CLOVER2_WS_DIR" || exit
-/bin/bash -c "cd $CLOVER2_WS_DIR && source /opt/ros/$ROS_DISTRO/setup.bash && colcon build --symlink-install --cmake-args -DBUILD_TESTING=0"
-
 log_info "Add clover2 project to bashrc"
 echo "source $CLOVER2_WS_DIR/install/setup.bash" >> ~/.bashrc
+
+log_info "Setup bashrc"
 echo ". /opt/clover2/.ros2.env" >> ~/.bashrc
 cat >> ~/.bashrc <<'EOF'
 clover2-settings() {
@@ -17,12 +14,6 @@ EOF
 log_info "Install udev rules"
 sudo cp $ASSETS_DIR/udev/* /etc/udev/rules.d/
 
-get_ros_pkg_share() {
-    source "/opt/ros/${ROS_DISTRO}/setup.bash"
-    source "${CLOVER2_WS_DIR}/install/setup.bash"
-    ros2 pkg prefix "$1" --share
-}
-
 log_info "Install some scripts"
 sudo cp $ASSETS_DIR/clover2_firstboot.sh /root/
 sudo cp $ASSETS_DIR/bin/* /usr/local/bin/
@@ -31,8 +22,6 @@ cp $ASSETS_DIR/ros2.env /opt/clover2/.ros2.env
 cp $REPO_DIR/tooling/configs/cyclonedds.xml /opt/clover2/cyclonedds.xml
 cp $REPO_DIR/tooling/configs/cyclonedds_lo.xml /opt/clover2/cyclonedds_lo.xml
 cp $ASSETS_DIR/launcher_config.yaml /opt/clover2/.config.yaml
-ln -s "$(get_ros_pkg_share clover2)/examples" /home/$USER/examples
-cp -r "$(get_ros_pkg_share clover2_map)/map" /opt/clover2/map
 
 sudo mkdir /var/log/clover2
 sudo chmod 755 /var/log/clover2
