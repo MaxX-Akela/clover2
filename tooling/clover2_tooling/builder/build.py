@@ -50,8 +50,10 @@ sudo chown -R $USER:$USER /opt/clover2""")
     await qemu.execute(f"cd {VM_REPO_DIR} && git fetch origin && git switch --detach {git_hash}")
 
 
-async def _run_common(qemu: Qemu) -> None:
+async def _run_stage(qemu: Qemu, env: str, stage: str) -> None:
     logger.info("Run 00-common stage")
+    await qemu.execute(
+        f"cd {VM_REPO_DIR} && {env} bash {RUNNER_PATH} --stages {stage}".strip())
     await qemu.execute("sudo apt-get update && sudo apt-get install -y make")
 
 
@@ -79,18 +81,22 @@ async def provision(settings: BuilderSettings, payload: dict, image: pathlib.Pat
     )
 
     async with Qemu(qemu_cfg) as qemu:
-        async with asyncio.TaskGroup() as tg:
-            tg.create_task(_clone_project(qemu, payload["git_hash"]))
-            tg.create_task(_run_common(qemu))
-            tg.create_task(_load_build_extras(qemu, settings.project_dir))
-
-        logger.info("Run stage runner")
         env = (
             f"REGISTRY={shlex.quote(settings.registry)} "
             f"CLOVER2_VERSION={shlex.quote(payload['version'])} "
             f"CLOVER2_GIT_HASH={shlex.quote(payload['git_hash'])} "
         )
 
+        async with asyncio.TaskGroup() as tg:
+            tg.create_task(_clone_project(qemu, payload["git_hash"]))
+            tg.create_task(_load_build_extras(qemu, settings.project_dir))
+            tg.create_task(_run_stage(qemu, env, '"00-common,10-ros,11-ros-extra,30-docker"'))
+            tg.create_task(_run_stage(qemu, env, "20-camera"))
+            tg.create_task(_run_stage(qemu, env, "40-hardware"))
+            tg.create_task(_run_stage(qemu, env, "50-netplan"))
+            tg.create_task(_run_stage(qemu, env, "60-user"))
+
+        logger.info("Run over stages")
         await qemu.execute(
             f"cd {VM_REPO_DIR} && {env} bash {RUNNER_PATH} {stages_args}".strip())
 

@@ -37,6 +37,7 @@ BUILDER_DIR=$(dirname "$(readlink -f "$0")")
 REPO_DIR=$(readlink -m "$BUILDER_DIR/../..")
 ASSETS_DIR="$BUILDER_DIR/assets"
 STAGES_DIR="$BUILDER_DIR/stages"
+CLOVER2_WS_DIR="/opt/clover2/ws"
 STAGES_META_DIR="${STAGES_META_DIR:-/var/log/clover2/stages}"
 
 # // options
@@ -57,12 +58,14 @@ done
 
 stage_selected() {
     local STAGE=$1
+
     if [ -n "$ONLY_STAGES" ]; then
         [[ ",$ONLY_STAGES," == *",$STAGE,"* ]] || return 1
     fi
     if [ -n "$SKIP_STAGES" ]; then
         [[ ",$SKIP_STAGES," == *",$STAGE,"* ]] && return 1
     fi
+
     return 0
 }
 

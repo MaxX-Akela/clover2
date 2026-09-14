@@ -34,7 +34,7 @@ def upload(artifact: pathlib.Path, config: ImageConfiguration,
 
     image_tags = Tags(for_object=True)
     image_tags["platform"] = config.name
-    image_tags["build-type"] = settings.composed_version()["build_mode"]
+    image_tags["build-type"] = settings.build_mode
     image_tags["git-hash"] = settings.composed_version()["git_hash"]
 
     logger.info("Uploading '%s' -> %s/%s", artifact, BUCKET, key)

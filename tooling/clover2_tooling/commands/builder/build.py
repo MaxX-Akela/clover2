@@ -79,17 +79,17 @@ class BuildCommand(Command):
         tars_dir = default_images_dir(settings, cfg.name)
 
         if args.dry_run:
-            print(f"configuration : {cfg.name}")
-            print(f"build mode    : {settings.build_mode}")
+            print(f"configuration: {cfg.name}")
+            print(f"build mode: {settings.build_mode}")
             print(
-                f"version       : {payload['version']} (tag: {settings.artifact_tag(payload)})")
-            print(f"output        : {output}")
+                f"version: {payload['version']} ({settings.artifact_tag(payload)})")
+            print(f"output: {output}")
             print(
-                f"docker images : {', '.join(cfg.docker_images) or '-'} -> {tars_dir}")
-            print(f"compression   : {cfg.compression}")
+                f"docker images: {', '.join(cfg.docker_images) or '-'} -> {tars_dir}")
+            print(f"compression: {cfg.compression}")
             print(
-                f"stages        : {'custom' if (args.stages or args.skip) else 'all pending'}")
-            print(f"stages args   : {stages_args(args) or '-'}")
+                f"stages: {'custom' if (args.stages or args.skip) else 'all pending'}")
+            print(f"stages args: {stages_args(args) or '-'}")
             return
 
         if not output.is_file():
