@@ -48,9 +48,9 @@ void display_screen::set_cpu(std::string value, const bool alert) {
     set_alert("cpu", alert);
 }
 
-void display_screen::set_temperature(std::string value, const bool alert) {
-    set_value("temperature", std::move(value));
-    set_alert("temperature", alert);
+void display_screen::set_temp(std::string value, const bool alert) {
+    set_value("temp", std::move(value));
+    set_alert("temp", alert);
 }
 
 void display_screen::clear() {

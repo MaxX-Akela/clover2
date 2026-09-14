@@ -24,7 +24,7 @@ public:
     void set_hostname(std::string value);
     void set_network(std::string value);
     void set_cpu(std::string value, bool alert);
-    void set_temperature(std::string value, bool alert);
+    void set_temp(std::string value, bool alert);
     void clear();
     void render(cv::Mat& image);
 

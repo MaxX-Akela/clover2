@@ -146,7 +146,7 @@ private:
         if (event.name == "cpu") {
             m_screen->set_cpu(event.message, alert);
         } else if (event.name == "temperature") {
-            m_screen->set_temperature(event.message, alert);
+            m_screen->set_temp(event.message, alert);
         }
         done();
     }
@@ -191,8 +191,7 @@ private:
 
     std::string m_base_path{"display"};
     double m_refresh_period{1.0};
-    std::vector<std::string> m_parameters{"hostname", "network", "cpu",
-                                          "temperature"};
+    std::vector<std::string> m_parameters{"hostname", "network", "cpu", "temp"};
     std::vector<std::string> m_network_interfaces{"wlan0", "eth0"};
     display_ui::font m_font;
     bool m_alert_enabled{true};

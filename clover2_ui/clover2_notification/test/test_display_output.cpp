@@ -95,8 +95,7 @@ protected:
         options.append_parameter_override("display.refresh_period", 0.1);
         options.append_parameter_override(
             "display.parameters",
-            std::vector<std::string>{"hostname", "network", "cpu",
-                                     "temperature"});
+            std::vector<std::string>{"hostname", "network", "cpu", "temp"});
         options.append_parameter_override("display.network.interfaces",
                                           std::vector<std::string>{"lo"});
         options.append_parameter_override("display.alert.enabled", true);

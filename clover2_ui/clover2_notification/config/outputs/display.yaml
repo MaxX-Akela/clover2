@@ -9,7 +9,7 @@
         - hostname
         - network
         - cpu
-        - temperature
+        - temp
 
       network:
         interfaces:
