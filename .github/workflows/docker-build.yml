@@ -64,3 +64,32 @@ jobs:
           name: test-results
           path: test-results
           if-no-files-found: warn
+
+  rpi-release-asset:
+    needs: [detect-mode, docker]
+    if: ${{ needs.detect-mode.outputs.build_mode == 'release' || needs.detect-mode.outputs.build_mode == 'pre-release' }}
+    runs-on: ${{ vars.RUNNER || 'ubuntu-latest' }}
+    permissions:
+      contents: write
+      packages: read
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/clover2/clover2-ros:${{ needs.detect-mode.outputs.version }}
+      ASSET: clover2-ros-rpi4-5-arm64-${{ needs.detect-mode.outputs.version }}.tar.gz
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/docker-setup
+        with:
+          ghcr-token: ${{ github.token }}
+
+      - name: Export clover2-ros image for Raspberry Pi 4/5 (arm64)
+        run: |
+          docker pull --platform linux/arm64 "$IMAGE"
+          docker save "$IMAGE" | gzip > "$ASSET"
+
+      - name: Attach image to GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v${{ needs.detect-mode.outputs.version }}
+          files: ${{ env.ASSET }}
+          fail_on_unmatched_files: true
