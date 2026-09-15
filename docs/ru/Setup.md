@@ -23,6 +23,7 @@ QGroundControl
 ## Установка QGroundControl
 
 Используйте программное обеспечение QGroundControl для прошивки, настройки и калибровки полетного контроллера.
+
 Скачайте установочный файл для Windows, Linux или macOS на странице [релиза QGroundControl v5.1.4](https://github.com/mavlink/QGroundControl/releases/tag/v5.1.4) и установите на ваш компьютер. Если установщик предложит поставить дополнительные драйверы, согласитесь с установкой.
 
 Дополнительная документация доступна на сайте [QGroundControl User Guide](https://docs.qgroundcontrol.com/).
