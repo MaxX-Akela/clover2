@@ -73,7 +73,6 @@ jobs:
       contents: write
       packages: read
     env:
-      IMAGE: ghcr.io/${{ github.repository_owner }}/clover2/clover2-ros:${{ needs.detect-mode.outputs.version }}
       ASSET: clover2-ros-rpi4-5-arm64-${{ needs.detect-mode.outputs.version }}.tar.gz
     steps:
       - uses: actions/checkout@v7
@@ -84,6 +83,7 @@ jobs:
 
       - name: Export clover2-ros image for Raspberry Pi 4/5 (arm64)
         run: |
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/clover2/clover2-ros:${{ needs.detect-mode.outputs.version }}"
           docker pull --platform linux/arm64 "$IMAGE"
           docker save "$IMAGE" | gzip > "$ASSET"
 
