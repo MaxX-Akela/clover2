@@ -117,6 +117,7 @@ target "ros" {
   target = tgt
 
   inherits = ["base"]
+  platforms = PLATFORMS
 
   args = {
     ROS_DISTRO = "jazzy"
