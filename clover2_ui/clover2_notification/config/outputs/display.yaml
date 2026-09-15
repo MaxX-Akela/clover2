@@ -1,0 +1,24 @@
+/**/notification:
+  ros__parameters:
+    display:
+      enabled: true
+      plugin: display
+      base_path: display
+      refresh_period: 1.0
+      parameters:
+        - hostname
+        - network
+        - cpu
+        - temp
+
+      network:
+        interfaces:
+          - wlan0
+          - eth0
+
+      font:
+        scale: 0.45
+        thickness: 1
+
+      alert:
+        enabled: true

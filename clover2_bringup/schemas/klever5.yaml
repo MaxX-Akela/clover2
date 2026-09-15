@@ -64,18 +64,18 @@ localization:
           default: true
           description: "Enable ArUco tracker"
 
-indication:
+notification:
   type: object
-  description: "Indication settings"
+  description: "Notification settings"
   fields:
     led_strip:
       type: bool
       default: true
-      description: "Enable LED Strip driver"
+      description: "Enable LED Strip notification output"
     display:
       type: bool
       default: true
-      description: "Enable display driver"
+      description: "Enable display notification output"
 
 additional_sensors:
   type: object

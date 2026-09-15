@@ -13,8 +13,8 @@
 
     <arg name="front_camera.enable" default="false" />
 
-    <arg name="indication.led_strip" default="false" />
-    <arg name="indication.display" default="false" />
+    <arg name="notification.led_strip" default="true" />
+    <arg name="notification.display" default="true" />
 
     <arg name="additional_sensors.2d_lidar" default="false" />
     <arg name="additional_sensors.thermal_camera" default="false" />
@@ -83,19 +83,12 @@
         <arg name="map" value="$(var localization.map_server.map_filename)" />
     </include>
 
-    <include file="$(find-pkg-share clover2_bringup)/launch/snippets/indication.launch.xml">
+    <include file="$(find-pkg-share clover2_bringup)/launch/snippets/notification.launch.xml">
         <arg name="use_sim_time" value="$(var use_sim_time)" />
         <arg name="ns" value="$(var root_ns)" />
 
-        <arg name="led_strip" value="$(var indication.led_strip)" />
-    </include>
-
-    <include file="$(find-pkg-share clover2_bringup)/launch/snippets/display.launch.xml">
-        <arg name="use_sim_time" value="$(var use_sim_time)" />
-        <arg name="params_file" value="$(var params_file)" />
-        <arg name="ns" value="$(var root_ns)" />
-
-        <arg name="display" value="$(var indication.display)" />
+        <arg name="led_strip" value="$(var notification.led_strip)" />
+        <arg name="display" value="$(var notification.display)" />
     </include>
 
     <include file="$(find-pkg-share clover2_ui)/launch/diagnostics.launch.xml">
