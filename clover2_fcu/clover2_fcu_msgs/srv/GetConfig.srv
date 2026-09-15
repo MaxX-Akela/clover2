@@ -1,0 +1,5 @@
+# Request the resolved FCU interface configuration from the bridge.
+---
+bool ok
+clover2_fcu_msgs/FcuConfig config
+string error

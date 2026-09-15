@@ -1,0 +1,6 @@
+# Activate a registered mode. An empty name deactivates the currently
+# active mode.
+string name
+---
+bool ok
+string error
