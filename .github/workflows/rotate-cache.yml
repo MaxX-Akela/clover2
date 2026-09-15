@@ -5,7 +5,6 @@ on:
 
 permissions:
   contents: write
-  actions: write
 
 jobs:
   bump-epoch:
@@ -21,15 +20,10 @@ jobs:
           echo "${NEW}" > docker/cache-epoch
           echo "CACHE_EPOCH=${NEW}" >> "$GITHUB_ENV"
 
-      - name: Commit
+      - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docker/cache-epoch
           git commit -m "update ci: rotate build cache (epoch ${CACHE_EPOCH})"
           git push
-
-      - name: Rebuild to seed new cache
-        run: gh workflow run docker-build.yml --ref master
-        env:
-          GH_TOKEN: ${{ github.token }}
